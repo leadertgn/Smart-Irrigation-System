@@ -31,3 +31,6 @@ Thumbs.db
 config.h
 secrets.py
 *.pem
+
+.dist
+.qodo
