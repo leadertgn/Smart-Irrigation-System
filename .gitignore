@@ -31,3 +31,14 @@ Thumbs.db
 config.h
 secrets.py
 *.pem
+
+# PlatformIO files
+.pio/
+.pioenvs/
+.piolibdeps/
+*.elf
+*.bin
+*.hex
+
+# VS Code
+.vscode/
