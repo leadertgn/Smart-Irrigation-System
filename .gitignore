@@ -1,0 +1,33 @@
+# --- FICHIERS SYSTÈME & IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# --- BACKEND (Node.js) ---
+/backend-node/node_modules/
+/backend-node/.env
+/backend-node/npm-debug.log*
+
+# --- FRONTEND (React) ---
+/frontend-react/node_modules/
+/frontend-react/build/
+/frontend-react/.env.local
+/frontend-react/.env.development.local
+/frontend-react/.env.test.local
+/frontend-react/.env.production.local
+
+# --- IOT (PlatformIO) ---
+# Empêche d'envoyer les fichiers de compilation lourds
+.pio/
+.clang_complete
+.gcc-flags.json
+/iot-collecte/.pio/
+/iot-commande/.pio/
+
+# --- SÉCURITÉ (Important !) ---
+# Si vous utilisez des fichiers de config séparés pour les secrets
+config.h
+secrets.py
+*.pem
