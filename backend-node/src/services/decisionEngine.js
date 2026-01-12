@@ -8,12 +8,13 @@ export const evaluateIrrigation = async () => {
         if (!is_auto) return;
 
         const now = new Date();
-        const hour = now.getHours();
+        //const hour = now.getHours();
+        const hour = 13
         const activeHours = [8, 13, 18];
 
         // 1. Si on est dans une heure d'arrosage, on rafraîchit la météo d'abord
         if (activeHours.includes(hour)) {
-            await updateForecast();
+           // await updateForecast();
         }
 
         // 2. Récupérer les données fraîches (météo + zones)
@@ -45,7 +46,7 @@ export const evaluateIrrigation = async () => {
                         await db.ref(`zones/${id}/state/pump_status`).set(false);
                         await db.ref(`zones/${id}/state/last_irrigation`).set(new Date().toISOString());
                         console.log(`🛑 [ACTION] Arrêt pompe ${id}`);
-                    }, watering_duration_sec * 1000);
+                    }, watering_duration_sec);
                 }
             }
         }

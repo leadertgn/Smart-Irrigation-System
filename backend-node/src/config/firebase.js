@@ -3,7 +3,7 @@ import admin from "firebase-admin";
 const serviceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID?.trim(),
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL?.trim(),
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').trim()
+  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').trim()?.replace(/"/g, "")
 };
 
 try {

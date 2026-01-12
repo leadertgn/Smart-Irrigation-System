@@ -11,9 +11,24 @@ server.on('error', (error) => {
   console.error('Erreur serveur :', error);
 });
 
+const isDev = process.env.NODE_ENV === "development";
+const APP_NAME = "Smart Irrigation API";
 server.listen(PORT, async () => {
-  console.log(`🚀 Serveur en ligne sur http://localhost:${PORT}`);
-  await initHistoryService(); // Remplit le tableau persistant au démarrage
-  await updateForecast(); // <--- Ici pour avoir la météo réelle dès le début
-  console.log(`📡 En attente de données IoT...`);
+  console.log(
+    isDev
+      ? `🚀 Serveur en ligne (DEV) → http://localhost:${PORT}`
+      : `🚀 Serveur démarré en PRODUCTION (PORT ${PORT})`
+  );
+  try {
+    await initHistoryService();
+    console.log("📦 Cache historique centralisé initialisé depuis au démarrage du serveur");
+
+    await updateForecast();
+    console.log("🌤️ Météo initialisée avec succès au démarrage du serveur ");
+    console.log(`🚀 ${APP_NAME} démarrée (${isDev ? "DEV" : "PROD"})`);
+    console.log("📡 En attente de données IoT...");
+  } catch (error) {
+    console.error("❌ Erreur au démarrage du serveur :", error);
+    process.exit(1); // fail fast en prod
+  }
 });
