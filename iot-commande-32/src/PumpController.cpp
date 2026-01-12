@@ -1,73 +1,27 @@
 #include "PumpController.h"
 
-PumpController::PumpController(uint8_t pin1, uint8_t pin2) 
-    : pinPump1(pin1), pinPump2(pin2), 
-      pump1State(false), pump2State(false),
-      lastCommandTime(0) {
-}
+PumpController::PumpController(uint8_t p1, uint8_t p2, bool lowTrigger)
+    : _pin1(p1), _pin2(p2), _isLow(lowTrigger), _lastCmd(0) {}
 
 void PumpController::begin() {
-    pinMode(pinPump1, OUTPUT);
-    pinMode(pinPump2, OUTPUT);
-    digitalWrite(pinPump1, HIGH);
-    digitalWrite(pinPump2, HIGH);
-    lastCommandTime = millis();
+    pinMode(_pin1, OUTPUT);
+    pinMode(_pin2, OUTPUT);
+    safetyStop();
 }
 
-void PumpController::activatePump(uint8_t pumpNumber) {
-    if (pumpNumber == 1) {
-        digitalWrite(pinPump1, LOW);
-        pump1State = true;
-        Serial.println("[PUMP] Pompe 1 ACTIVEE");
-    } else if (pumpNumber == 2) {
-        digitalWrite(pinPump2, LOW);
-        pump2State = true;
-        Serial.println("[PUMP] Pompe 2 ACTIVEE");
-    }
-    lastCommandTime = millis();
-}
-
-void PumpController::deactivatePump(uint8_t pumpNumber) {
-    if (pumpNumber == 1) {
-        digitalWrite(pinPump1, HIGH);
-        pump1State = false;
-        Serial.println("[PUMP] Pompe 1 DESACTIVEE");
-    } else if (pumpNumber == 2) {
-        digitalWrite(pinPump2, HIGH);
-        pump2State = false;
-        Serial.println("[PUMP] Pompe 2 DESACTIVEE");
-    }
-    lastCommandTime = millis();
+void PumpController::update(bool p1, bool p2) {
+    // Écrire l'état en tenant compte du trigger bas/haut
+    digitalWrite(_pin1, _isLow ? (p1 ? LOW : HIGH) : (p1 ? HIGH : LOW));
+    digitalWrite(_pin2, _isLow ? (p2 ? LOW : HIGH) : (p2 ? HIGH : LOW));
+    _lastCmd = millis(); // Reset timer à chaque commande
 }
 
 void PumpController::safetyStop() {
-    digitalWrite(pinPump1, HIGH);
-    digitalWrite(pinPump2, HIGH);
-    pump1State = false;
-    pump2State = false;
-    Serial.println("[SAFETY] ARRET D'URGENCE - Toutes les pompes coupees");
+    digitalWrite(_pin1, _isLow ? HIGH : LOW);
+    digitalWrite(_pin2, _isLow ? HIGH : LOW);
+    Serial.println("[SAFETY] Pompes OFF");
 }
 
-void PumpController::updateState(bool p1, bool p2) {
-    if (p1 != pump1State) {
-        if (p1) activatePump(1);
-        else deactivatePump(1);
-    }
-    if (p2 != pump2State) {
-        if (p2) activatePump(2);
-        else deactivatePump(2);
-    }
-}
-
-bool PumpController::checkSafetyTimeout(unsigned long timeoutMs) {
-    unsigned long currentTime = millis();
-    unsigned long elapsed = (currentTime >= lastCommandTime) 
-                          ? (currentTime - lastCommandTime) 
-                          : (ULONG_MAX - lastCommandTime + currentTime);
-    
-    if (elapsed > timeoutMs) {
-        safetyStop();
-        return true;
-    }
-    return false;
+bool PumpController::isTimeoutActive(unsigned long limit) {
+    return (millis() - _lastCmd > limit);
 }

@@ -5,23 +5,17 @@
 
 class PumpController {
 private:
-    uint8_t pinPump1;
-    uint8_t pinPump2;
-    bool pump1State;
-    bool pump2State;
-    unsigned long lastCommandTime;
-    
+    uint8_t _pin1;
+    uint8_t _pin2;
+    bool _isLow;
+    unsigned long _lastCmd;
+
 public:
-    PumpController(uint8_t pin1, uint8_t pin2);
+    PumpController(uint8_t p1, uint8_t p2, bool lowTrigger);
     void begin();
-    void activatePump(uint8_t pumpNumber);
-    void deactivatePump(uint8_t pumpNumber);
+    void update(bool p1, bool p2);
     void safetyStop();
-    void updateState(bool p1, bool p2);
-    bool checkSafetyTimeout(unsigned long timeoutMs = 1200000);
-    bool getPump1State() const { return pump1State; }
-    bool getPump2State() const { return pump2State; }
-    unsigned long getLastCommandTime() const { return lastCommandTime; }
+    bool isTimeoutActive(unsigned long limit = 1200000);
 };
 
 #endif
