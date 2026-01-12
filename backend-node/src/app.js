@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dataRoutes from "./routes/dataRoutes.js";
-import zoneRoutes from "./routes/zoneRoutes.js"; // Nouvelle route
-import systemRoutes from "./routes/systemRoutes.js"; // Nouvelle route
+import zoneRoutes from "./routes/zoneRoutes.js"; 
+import systemRoutes from "./routes/systemRoutes.js";
 
 const app = express();
 
