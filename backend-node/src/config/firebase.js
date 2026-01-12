@@ -19,4 +19,4 @@ try {
 const db = admin.database();
 const auth = admin.auth();
 
-export { db, auth };
+export { db, auth , admin};

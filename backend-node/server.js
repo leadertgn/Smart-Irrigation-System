@@ -10,17 +10,24 @@ const server = http.createServer(app);
 server.on('error', (error) => {
   console.error('Erreur serveur :', error);
 });
-
+// Fonction de sécurité pour réinitialiser les pompes
+const safetyReset = async () => {
+    try {
+        await db.ref('zones/z1/state').update({ pump_status: false });
+        await db.ref('zones/z2/state').update({ pump_status: false });
+        console.log("🛡️  Sécurité : Pompes réinitialisées à OFF au démarrage.");
+    } catch (error) {
+        console.error("⚠️  Échec du reset de sécurité:", error.message);
+    }
+};
 const isDev = process.env.NODE_ENV === "development";
 const APP_NAME = "Smart Irrigation API";
 server.listen(PORT, async () => {
   console.log( isDev ? `🚀 Serveur en ligne (DEV) → http://localhost:${PORT}`: `🚀 Serveur démarré en PRODUCTION (PORT ${PORT})`);
   try {
-  await initHistoryService();
-  console.log("📦 Cache historique centralisé initialisé depuis au démarrage du serveur");
-
-  await updateForecast();
-  console.log("🌤️ Météo initialisée avec succès au démarrage du serveur ");
+    await safetyReset();
+    await initHistoryService();
+    await updateForecast();
     console.log(`🚀 ${APP_NAME} démarrée (${isDev ? "DEV" : "PROD"})`);
     console.log("📡 En attente de données IoT...");
   } catch (error) {
