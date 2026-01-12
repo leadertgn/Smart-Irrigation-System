@@ -14,17 +14,13 @@ server.on('error', (error) => {
 const isDev = process.env.NODE_ENV === "development";
 const APP_NAME = "Smart Irrigation API";
 server.listen(PORT, async () => {
-  console.log(
-    isDev
-      ? `🚀 Serveur en ligne (DEV) → http://localhost:${PORT}`
-      : `🚀 Serveur démarré en PRODUCTION (PORT ${PORT})`
-  );
+  console.log( isDev ? `🚀 Serveur en ligne (DEV) → http://localhost:${PORT}`: `🚀 Serveur démarré en PRODUCTION (PORT ${PORT})`);
   try {
-    await initHistoryService();
-    console.log("📦 Cache historique centralisé initialisé depuis au démarrage du serveur");
+  await initHistoryService();
+  console.log("📦 Cache historique centralisé initialisé depuis au démarrage du serveur");
 
-    await updateForecast();
-    console.log("🌤️ Météo initialisée avec succès au démarrage du serveur ");
+  await updateForecast();
+  console.log("🌤️ Météo initialisée avec succès au démarrage du serveur ");
     console.log(`🚀 ${APP_NAME} démarrée (${isDev ? "DEV" : "PROD"})`);
     console.log("📡 En attente de données IoT...");
   } catch (error) {
