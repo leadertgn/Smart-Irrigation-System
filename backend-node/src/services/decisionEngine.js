@@ -9,7 +9,6 @@ export const evaluateIrrigation = async () => {
 
         const now = new Date();
         const hour = now.getHours();
-       // const hour = 13 // tests
         const activeHours = [8, 13, 18];
 
         // 1. Si on est dans une heure d'arrosage, on rafraîchit la météo d'abord

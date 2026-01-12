@@ -5,8 +5,6 @@ export const updateForecast = async () => {
     try {
         const apiKey = process.env.WEATHER_API_KEY;
         const city = process.env.CITY_NAME || 'Cotonou';
-        // API "Current Weather" pour la description et "Forecast" pour la probabilité de pluie (pop)
-        // Note: On utilise l'API 3-hour forecast car elle donne le champ 'pop' (Probability of Precipitation)
         const url = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric&cnt=1&lang=fr`;
 
         const response = await axios.get(url);
