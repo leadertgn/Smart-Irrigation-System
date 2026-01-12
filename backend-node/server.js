@@ -3,6 +3,7 @@ import http from 'http';
 import app from './src/app.js';
 import { initHistoryService } from './src/services/historyService.js';
 import { updateForecast } from './src/services/weatherService.js';
+import { db } from './src/config/firebase.js';
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
