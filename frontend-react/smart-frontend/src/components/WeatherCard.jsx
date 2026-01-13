@@ -22,7 +22,7 @@ const WeatherCard = ({ data }) => {
           <div className="flex items-center text-blue-100 text-xs mb-1">
             <Thermometer size={14} className="mr-1" /> Température
           </div>
-          <div className="text-xl font-bold">{current.air_temp} °C</div>
+          <div className="text-xl font-bold">{current.air_temp || 25} °C</div>
         </div>
 
         {/* Humidité Air */}
@@ -37,10 +37,10 @@ const WeatherCard = ({ data }) => {
       <div className="mt-6 flex items-center justify-between bg-white/20 rounded-xl p-4">
         <div className="text-sm">
           <span className="block text-blue-100 text-xs uppercase">Prévision Pluie</span>
-          <span className="font-bold text-lg">{forecast.rain_prob}% de probabilité</span>
+          <span className="font-bold text-lg">{forecast.rain_prob ||60 }% de probabilité</span>
         </div>
         <div className={`px-3 py-1 rounded-full text-xs font-bold ${forecast.is_raining_soon ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
-          {forecast.is_raining_soon ? 'ARROSAGE SUSPENDU' : 'CIEL DÉGAGÉ'}
+          {(forecast.rain_prob > 50) ?  "POSSIBILITE D'ARROSAGE": 'ARROSAGE SUSPENDU'}
         </div>
       </div>
     </div>
