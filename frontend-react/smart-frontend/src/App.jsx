@@ -103,13 +103,13 @@ function App() {
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
             <SoilCard
               zoneId="z1"
-              label={data.zones.z1?.metadata?.name || "Zone Nord"}
+              label={data.zones.z1?.metadata || "Zone Nord"}
               moisture={data.zones.z1?.state?.soil_moisture || 0}
               config={data.zones.z1?.config}
             />
             <SoilCard
               zoneId="z2"
-              label={data.zones.z2?.metadata?.name || "Zone Sud"}
+              label={data.zones.z2?.metadata || "Zone Sud"}
               moisture={data.zones.z2?.state?.soil_moisture || 0}
               config={data.zones.z2?.config}
             />
