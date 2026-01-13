@@ -28,48 +28,58 @@ String getISO8601Time() {
     if (timeinfo->tm_year < (2025 - 1900)) return "1970-01-01T00:00:00Z";
 
     char buffer[25];
-    // On retire le 'Z' car techniquement on est à +1, 
-    // mais si ton backend en a besoin, on peut le laisser
+    // On retire le 'Z' car techniquement on est à +1,  mais si ton backend en a besoin, on peut le laisser
     strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%SZ", timeinfo);
     return String(buffer);
 }
 // --- Fonction : Initialisation du Stream Firebase ---
 void startFirebaseStream() {
-    Serial.println("\n📡 Stream Firebase en mode manuel/site...");
+    Serial.println("\n📡 Stream Firebase : Mode Synchronisation Stricte...");
     if (!Firebase.RTDB.beginStream(&fbdo, "/zones")) {
         Serial.printf("❌ Erreur: %s\n", fbdo.errorReason().c_str());
     } else {
         Firebase.RTDB.setStreamCallback(&fbdo, [](FirebaseStream data) {
             String path = data.dataPath();
-            Serial.printf("\n📥 Flux reçu sur: %s | Type: %s\n", path.c_str(), data.dataType().c_str());
-
-            // --- CAS 1 : Le site modifie tout l'objet state ---
+            
+            // --- STRATÉGIE : Si on reçoit un changement, on relit TOUT le nœud --- Cela évite que z1_target ou z2_target restent bloqués sur 'true'
+            
+            FirebaseJsonData result;
+            
             if (data.dataType() == "json") {
                 FirebaseJson &json = data.jsonObject();
-                FirebaseJsonData result;
                 
-                // On cherche pump_status dans le JSON, peu importe où il est
-                if (json.get(result, "z1/state/pump_status") || json.get(result, "pump_status")) {
-                    if (result.success) z1_target = result.boolValue;
+                // On tente d'extraire Z1
+                if (json.get(result, "z1/state/pump_status")) {
+                    z1_target = result.boolValue;
                 }
-                // Si le chemin est spécifiquement z2 ou contient z2
-                if (json.get(result, "z2/state/pump_status") || (path.indexOf("z2") != -1 && json.get(result, "pump_status"))) {
-                    if (result.success) z2_target = result.boolValue;
+                
+                // On tente d'extraire Z2
+                if (json.get(result, "z2/state/pump_status")) {
+                    z2_target = result.boolValue;
+                }
+                
+                // Cas spécifique : Si le site envoie juste l'objet d'une zone (ex: path = /z1/state)
+                if (path == "/z1/state") {
+                    if (json.get(result, "pump_status")) z1_target = result.boolValue;
+                }
+                if (path == "/z2/state") {
+                    if (json.get(result, "pump_status")) z2_target = result.boolValue;
                 }
             } 
-            // --- CAS 2 : Modification directe dans la console (Booléen simple) ---
-            else {
-                if (path.indexOf("z1") != -1 && path.indexOf("pump_status") != -1) z1_target = data.boolData();
-                if (path.indexOf("z2") != -1 && path.indexOf("pump_status") != -1) z2_target = data.boolData();
+            else if (data.dataType() == "boolean") {
+                // Modification directe via la console Firebase
+                if (path.indexOf("z1") != -1) z1_target = data.boolData();
+                if (path.indexOf("z2") != -1) z2_target = data.boolData();
             }
 
-            Serial.printf("⚙️ ACTION -> Z1: %s | Z2: %s\n", z1_target ? "ON" : "OFF", z2_target ? "ON" : "OFF");
+            Serial.printf(" État Réel -> Z1: %s | Z2: %s\n", z1_target ? "ON" : "OFF", z2_target ? "ON" : "OFF");
+            
+            // On applique l'état aux relais
             irrigation.updateZones(z1_target, z2_target);
             
         }, nullptr);
     }
 }
-
 void setup() {
     Serial.begin(115200);
     delay(1000);
@@ -84,11 +94,11 @@ void setup() {
     WiFi.persistent(true);
     
     if (!wm.autoConnect("SmartIrrigation_AP")) {
-        Serial.println("❌ Échec de connexion Wi-Fi. Redémarrage...");
+        Serial.println(" Échec de connexion Wi-Fi. Redémarrage...");
         delay(3000);
         ESP.restart();
     }
-    Serial.println("🌐 Wi-Fi Connecté !");
+    Serial.println(" Wi-Fi Connecté !");
 
     // 3. Configuration Firebase
     config.host = FIREBASE_HOST;
@@ -98,7 +108,7 @@ void setup() {
 
     // 4. Configuration Temps (NTP)
     configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
-    Serial.print("⏳ Synchronisation heure NTP...");
+    Serial.print(" Synchronisation heure NTP...");
     setenv("TZ", "WAT-1", 1);
     tzset();
     time_t now = time(nullptr);
@@ -109,8 +119,10 @@ void setup() {
         now = time(nullptr);
         retry++;
     }
-    Serial.println("\n🕒 Heure actuelle: " + getISO8601Time());
-
+    Serial.println("\n Heure actuelle: " + getISO8601Time());
+    z1_target = false;
+    z2_target = false;
+    irrigation.stopAll();
     // 5. Lancer l'écoute en temps réel
     startFirebaseStream();
 }
@@ -120,14 +132,14 @@ void loop() {
     if (millis() - lastStreamCheck > STREAM_RECONNECT_INTERVAL) {
         lastStreamCheck = millis();
         if (!fbdo.httpConnected()) {
-            Serial.println("⚠️ Connexion Stream perdue. Reconnecion...");
+            Serial.println(" Connexion Stream perdue. Reconnecion...");
             startFirebaseStream();
         }
     }
 
     // B. Sécurité : Timeout de 5 minutes
     if (irrigation.getElapsed() > GLOBAL_TIMEOUT_MS) {
-        Serial.println("🚨 ALERTE : Sécurité Timeout (5 min) ! Coupure forcée.");
+        Serial.println(" ALERTE : Sécurité Timeout ! Coupure forcée.");
         
         // Arrêt local
         irrigation.stopAll();
@@ -142,7 +154,7 @@ void loop() {
         Firebase.RTDB.setString(&fbdo, "/zones/z1/state/last_irrigation", nowTime);
         Firebase.RTDB.setString(&fbdo, "/zones/z2/state/last_irrigation", nowTime);
         
-        Serial.println("✔️ Firebase synchronisé après timeout.");
+        Serial.println(" Firebase synchronisé après timeout.");
     }
 
     // Maintenir les tâches Firebase en arrière-plan
