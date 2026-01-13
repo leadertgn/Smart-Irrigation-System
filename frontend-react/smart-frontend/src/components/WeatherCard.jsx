@@ -11,7 +11,7 @@ const WeatherCard = ({ data }) => {
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="text-blue-100 text-sm font-medium uppercase tracking-wider">Météo Locale</h3>
-          <p className="text-2xl font-bold">Cotonou</p>
+          <p className="text-2xl font-bold">Lokossa</p>
         </div>
         <CloudRain size={32} className="text-blue-200 animate-pulse" />
       </div>
@@ -22,7 +22,7 @@ const WeatherCard = ({ data }) => {
           <div className="flex items-center text-blue-100 text-xs mb-1">
             <Thermometer size={14} className="mr-1" /> Température
           </div>
-          <div className="text-xl font-bold">{current.temp}°C</div>
+          <div className="text-xl font-bold">{current.air_temp} °C</div>
         </div>
 
         {/* Humidité Air */}
@@ -30,7 +30,7 @@ const WeatherCard = ({ data }) => {
           <div className="flex items-center text-blue-100 text-xs mb-1">
             <Droplets size={14} className="mr-1" /> Humidité Air
           </div>
-          <div className="text-xl font-bold">{current.humidity}%</div>
+          <div className="text-xl font-bold">{current.air_hum} %</div>
         </div>
       </div>
 
