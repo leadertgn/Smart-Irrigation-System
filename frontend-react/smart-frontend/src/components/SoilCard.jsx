@@ -28,7 +28,7 @@ const SoilCard = ({ zoneId, label, moisture, config }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 transition-all">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-slate-700">{label}</h3>
+        <h3 className="font-semibold text-slate-700">{label.name} - {label.type}</h3>
         <button 
           onClick={() => setIsEditing(!isEditing)}
           className="p-2 hover:bg-slate-50 rounded-full text-slate-400"
