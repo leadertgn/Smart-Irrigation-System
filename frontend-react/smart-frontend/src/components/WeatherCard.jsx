@@ -40,7 +40,7 @@ const WeatherCard = ({ data }) => {
           <span className="font-bold text-lg">{forecast.rain_prob ||60 }% de probabilité</span>
         </div>
         <div className={`px-3 py-1 rounded-full text-xs font-bold ${forecast.is_raining_soon ? 'bg-red-500 text-white' : 'bg-green-500 text-white'}`}>
-          {(forecast.rain_prob > 50) ?  "POSSIBILITE D'ARROSAGE": 'ARROSAGE SUSPENDU'}
+          {(forecast.rain_prob > 50) ?  "POSSIBILITE D'ARROSAGE NATURELLE": 'ARROSAGE SUSPENDU'}
         </div>
       </div>
     </div>
