@@ -23,23 +23,28 @@ export const updateHistory = async (currentData) => {
 
   const now = new Date();
   const currentHourKey = now.toISOString().substring(0, 13) + ":00Z";
+  const isDemoMode = process.env.APP_MODE === 'DEMO';
 
-  // On n'ajoute un point que si l'heure a changé
-  if (
+  // Condition : On ajoute si c'est une nouvelle heure OU si on est en mode DEMO
+  const shouldUpdate = 
+    isDemoMode || 
     historyCache.timestamps.length === 0 ||
-    historyCache.timestamps[historyCache.timestamps.length - 1] !==
-      currentHourKey
-  ) {
-    const limit = 24;
+    historyCache.timestamps[historyCache.timestamps.length - 1] !== currentHourKey;
 
-    pushAndLimit(historyCache.timestamps, currentHourKey, limit);
+  if (shouldUpdate) {
+    // En mode DEMO, on met un timestamp précis (ISO complet) pour voir les points se suivre
+    // En mode PROD, on garde la clé de l'heure
+    const timeToSave = isDemoMode ? now.toISOString() : currentHourKey;
+    const limit = 24; // Tu peux augmenter à 50 en mode DEMO pour voir plus de points
+
+    pushAndLimit(historyCache.timestamps, timeToSave, limit);
     pushAndLimit(historyCache.air_temp, currentData.air_temp, limit);
     pushAndLimit(historyCache.air_hum, currentData.air_hum, limit);
     pushAndLimit(historyCache.z1_soil, currentData.z1_soil, limit);
     pushAndLimit(historyCache.z2_soil, currentData.z2_soil, limit);
 
     await db.ref("history").set(historyCache);
-    console.log(`📈 Historique synchronisé pour ${currentHourKey}`);
+    console.log(`📈 Historique mis à jour (${isDemoMode ? 'MODE DEMO' : 'MODE PROD'})`);
   }
 };
 
