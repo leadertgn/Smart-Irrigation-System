@@ -85,10 +85,14 @@ export const evaluateIrrigation = async () => {
         }
       }
     }
-
+    const finalUpdates = {
+      ...updates,
+      "system_settings/last_decision_engine_run": new Date().toISOString()
+    };
     // 5. Appliquer toutes les activations de pompes d'un coup
-    if (Object.keys(updates).length > 0) {
-      await db.ref().update(updates);
+    if (Object.keys(finalUpdates).length > 0) {
+      await db.ref().update(finalUpdates);
+      console.log("⏱️ Horodateur du moteur de décision mis à jour.");
     }
   } catch (error) {
     console.error("❌ Erreur critique dans le Decision Engine:", error.message);

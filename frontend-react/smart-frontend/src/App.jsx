@@ -128,16 +128,39 @@ function App() {
             zones={data.zones}
           />
         </div>
-
-        {/* --- FOOTER --- */}
-        <footer className="text-center py-8 border-t border-slate-200/50">
-          <p className="text-[10px] text-slate-400 uppercase tracking-[0.2em] font-semibold">
-            Dernière mise à jour système : {data.system_settings?.last_decision_engine_run 
-              ? new Date(data.system_settings.last_decision_engine_run).toLocaleString('fr-FR')
-              : 'En attente...'}
-          </p>
-        </footer>
-
+{/* --- FOOTER --- */}
+<footer className="text-center py-10 border-t border-slate-200/50">
+  <div className="flex flex-col items-center gap-3">
+    {/* État de l'analyse : texte agrandi à text-xs (12px) */}
+    <div className="flex items-center gap-3 text-xs text-slate-500 uppercase tracking-wider font-bold">
+      <span className="relative flex h-3 w-3">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+      </span>
+      Dernière analyse complète : 
+      <span className="text-slate-800 ml-1">
+        {data.system_settings?.last_decision_engine_run 
+          ? new Date(data.system_settings.last_decision_engine_run).toLocaleString('fr-FR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })
+          : 'En attente de synchronisation...'}
+      </span>
+    </div>
+    
+    {/* Mode système : légèrement plus grand et plus contrasté */}
+    <p className="text-[11px] text-slate-400 font-semibold tracking-normal">
+      SYSTÈME SMART GROW • MODE : 
+      <span className="text-blue-600 ml-1">
+        {import.meta.env.PROD ? 'PRODUCTION (DÉMO 20S)' : 'DÉVELOPPEMENT (AUTO)'}
+      </span>
+    </p>
+  </div>
+</footer>
       </div>
     </div>
   );
